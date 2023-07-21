@@ -21,7 +21,6 @@ const UploadedFileList: React.FC<IProps> = ({ uploadFileList }) => {
           }}
         />
         <span className='uploaded-list-item-name'>{item.fileName}</span>
-        <progress value='50' max='100'></progress>
         <CopyButton text={item.url} className='uploaded-list-item-url' />
       </div>
     );

@@ -46,7 +46,7 @@ export default class UpLoadFileClass {
         file: file,
       });
     }
-    this.updateWaitCalculateFile(this.waitCalculateFiles);
+    this.updateWaitCalculateFile([...this.waitCalculateFiles]);
     this.calculateFileHash();
   };
 
@@ -70,7 +70,7 @@ export default class UpLoadFileClass {
         });
         this.waitCalculateFiles.shift();
         this.waitUploadFiles.push(uploadFile);
-        this.updateWaitUploadFile(this.waitUploadFiles); // 上报
+        this.updateWaitUploadFile([...this.waitUploadFiles]); // 上报
         this.upload(uploadFile); // 上传文件
       }
     }
@@ -88,6 +88,7 @@ export default class UpLoadFileClass {
     });
     const data = JSON.parse(response.data);
     if (data.value) {
+      uploadFile.progress = 1;
       this.completeUpload(uploadFile, data.url);
       return;
     } else {
@@ -114,12 +115,12 @@ export default class UpLoadFileClass {
   };
 
   private completeUpload = (uploadFile: IWaitUploadedFile, url: string) => {
-    this.waitUploadFiles = this.waitUploadFiles.filter((item) => {
-      return item.id !== uploadFile.id;
-    });
-    this.updateWaitUploadFile(this.waitUploadFiles);
+    // this.waitUploadFiles = this.waitUploadFiles.filter((item) => {
+    //   return item.id !== uploadFile.id;
+    // });
+    // this.updateWaitUploadFile([...this.waitUploadFiles]);
     this.uploadedFiles.push({ fileName: uploadFile.file.name, url: url });
-    this.updateUploadedFiles(this.uploadedFiles);
+    this.updateUploadedFiles([...this.uploadedFiles]);
   };
 
   private uploadedProgress = (
@@ -136,6 +137,6 @@ export default class UpLoadFileClass {
     const uploadedSize = findFile.progressArr.reduce((perv, cur) => perv + cur);
     console.log('uploadedSize: ', uploadedSize, findFile.file.size);
     file.progress = uploadedSize / findFile.file.size;
-    this.updateWaitUploadFile(this.waitUploadFiles);
+    this.updateWaitUploadFile([...this.waitUploadFiles]);
   };
 }

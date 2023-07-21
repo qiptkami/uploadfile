@@ -10,7 +10,12 @@ const UploadedProgress: React.FC<{
     return (
       <div key={item.id}>
         <div>{item.file.name}</div>
-        <div>{item.progress}</div>
+        <div className='progress-container'>
+          <div
+            className='progress-bar'
+            style={{ width: `${item.progress * 100}%` }}
+          ></div>
+        </div>
       </div>
     );
   });
