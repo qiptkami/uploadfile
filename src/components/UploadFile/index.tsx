@@ -7,7 +7,6 @@ import {
 import UpLoadFileClass from '../../uploadFile';
 import InputFile from '../InputFile';
 import UploadedFileList from '../UploadedFileList';
-import UploadedProgress from '../UploadedProgress';
 
 import './index.less';
 
@@ -43,9 +42,11 @@ const UploadFile: React.FC = () => {
   return (
     <div className='container'>
       <InputFile handleInputFileChange={handleInputFileChange} />
-      <UploadedProgress waitUploadedFiles={waitUploadedFiles} />
       {uploadedFiles.length !== 0 && (
-        <UploadedFileList uploadFileList={uploadedFiles} />
+        <UploadedFileList
+          waitUploadedFiles={waitUploadedFiles}
+          uploadFileList={uploadedFiles}
+        />
       )}
     </div>
   );
