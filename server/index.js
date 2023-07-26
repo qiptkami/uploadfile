@@ -78,6 +78,17 @@ const mergeFileChunks = async (data) => {
     });
   });
 };
+const randomString = (length) => {
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charactersLength);
+    result += characters.charAt(randomIndex);
+  }
+  return result;
+};
 
 app.post('/upload', (req, res) => {
   if (!fs.existsSync(`${__dirname}/uploads`)) {
@@ -90,11 +101,15 @@ app.post('/upload', (req, res) => {
     });
   }
   //创建实例
-  let form = new formidable.IncomingForm();
-  //设置上传文件存放的目录
-  form.uploadDir = `${__dirname}/uploads`;
-  //保持原来的文件的扩展名
-  form.keepExtensions = true;
+  let form = new formidable.IncomingForm({
+    keepExtensions: true, //保持原来的文件的扩展名
+    uploadDir: `${__dirname}/uploads`, //设置上传文件存放的目录
+    filename: (name, ext, part, form) => {
+      //windows上invaild name
+      return `${new Date().getTime()}_${randomString(5)}`;
+    },
+  });
+
   //解析表单（异步）
   form.parse(req, (err, fields, files) => {
     if (err) {
@@ -103,26 +118,25 @@ app.post('/upload', (req, res) => {
       res.end('Internal Server Error');
       return;
     }
-    fs.mkdir(
-      `${__dirname}/uploads/${fields.name}`,
-      { recursive: true },
-      (err) => {
-        if (err) {
-          console.log('创建文件夹出错:' + err);
-        } else {
-          console.log('files: ', files);
-          let oldPath = files?.file?.[0].filepath;
+    const fileName = fields.name[0];
+    const fileHash = fields.hash[0];
 
-          let newPath = `${__dirname}/uploads/${fields.name}/${fields.hash}`;
-          fs.rename(oldPath, newPath, (err) => {
-            if (err) {
-              console.log(err);
-            }
-          });
-        }
-        res.end('ok');
+    fs.mkdir(`${__dirname}/uploads/${fileName}`, { recursive: true }, (err) => {
+      if (err) {
+        console.log('创建文件夹出错:' + err);
+      } else {
+        console.log('files: ', files);
+        let oldPath = files?.file?.[0].filepath;
+
+        let newPath = `${__dirname}/uploads/${fileName}/${fileHash}`;
+        fs.rename(oldPath, newPath, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
       }
-    );
+      res.end('ok');
+    });
     res.statusCode = 200;
     res.end('ok');
   });
