@@ -53,7 +53,7 @@ const mergeFileChunks = async (data) => {
     }
     const chunkFilesPath = files.map((item) => `${chunksDir}/${item}`);
     chunkFilesPath.sort(compareFun);
-    await Promise.all(
+    Promise.all(
       /**
        * 异步的将每一个文件item写入创建的文件可写流里
        */
@@ -70,11 +70,11 @@ const mergeFileChunks = async (data) => {
           })
         )
       )
-    );
-
-    fs.rmdirSync(chunksDir, { recursive: true }, (err) => {
-      console.log(chunksDir);
-      console.log(err);
+    ).then(() => {
+      fs.rmdir(chunksDir, { recursive: true }, (err) => {
+        console.log(chunksDir);
+        console.log(err);
+      });
     });
   });
 };

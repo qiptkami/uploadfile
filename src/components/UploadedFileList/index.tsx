@@ -1,53 +1,99 @@
-import React, { useEffect } from 'react';
-import { IUploadedFile, IWaitUploadedFile } from '../../interface/interface';
+import React from 'react';
+import {
+  IUploadedFile,
+  IWaitCalculateFile,
+  IWaitUploadedFile,
+} from '../../interface/interface';
 import CopyButton from '../CopyButton';
 
 import './index.less';
 
 interface IProps {
+  waitCalculateFiles: IWaitCalculateFile[];
   waitUploadedFiles: IWaitUploadedFile[];
   uploadFileList: IUploadedFile[];
 }
 
 const UploadedFileList: React.FC<IProps> = ({
-  waitUploadedFiles,
-  uploadFileList,
+  waitCalculateFiles = [],
+  waitUploadedFiles = [],
+  uploadFileList = [],
 }) => {
-  const list = waitUploadedFiles.map((item: IWaitUploadedFile) => {
-    return (
-      <div key={item.id}>
-        <div>{item.file.name}</div>
-        <div className='progress-container'>
-          <div
-            className='progress-bar'
-            style={{ width: `${item.progress * 100}%` }}
-          ></div>
-        </div>
-      </div>
-    );
-  });
+  const waitCalculateList = waitCalculateFiles.length ? (
+    <div className='list-wrapper'>
+      <div className='dividing-line'></div>
+      <div className='list-header'>正在计算文件hash...</div>
+      <>
+        {waitCalculateFiles.map((item: IWaitCalculateFile) => {
+          return <div key={item.id}>{item.file.name}</div>;
+        })}
+      </>
+    </div>
+  ) : null;
 
-  const previewList = uploadFileList.map((item: IUploadedFile) => {
-    return (
-      <div key={item.url} className='uploaded-list-item'>
-        <img
-          src={item.url}
-          alt=''
-          className='uploaded-list-item-img'
-          onClick={() => {
-            window.open(item.url, '_blank');
-          }}
-        />
-        <span className='uploaded-list-item-name'>{item.fileName}</span>
-        <CopyButton text={item.url} className='uploaded-list-item-url' />
+  const uploadedList = waitUploadedFiles.length ? (
+    <div className='list-wrapper'>
+      <div className='dividing-line'></div>
+      <div className='list-header'>正在上传...</div>
+      <div className='waited-list'>
+        {waitUploadedFiles.map((item: IWaitUploadedFile) => {
+          return (
+            <div key={item.id} className='waited-list-item'>
+              <span className='waited-list-item-name'>{item.file.name}</span>
+              <div className='progress-container'>
+                <div
+                  className='progress-bar'
+                  style={{ width: `${item.progress * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          );
+        })}
       </div>
-    );
-  });
+    </div>
+  ) : null;
+
+  const previewList = uploadFileList.length ? (
+    <div className='list-wrapper'>
+      <div className='dividing-line'></div>
+      <div className='list-header'>已上传文件</div>
+      <div className='uploaded-list'>
+        {uploadFileList.map((item: IUploadedFile) => {
+          return (
+            <div key={item.url} className='uploaded-list-item'>
+              <img
+                id={item.url}
+                src={item.url}
+                alt=''
+                className='uploaded-list-item-img'
+                onClick={() => {
+                  window.open(item.url, '_blank');
+                }}
+                onError={() => {
+                  const imgDom = document.getElementById(item.url);
+                  if (!imgDom) return;
+                  const parent = imgDom.parentElement;
+                  imgDom.remove();
+                  const spanDom = document.createElement('span');
+                  spanDom.textContent = '图片加载失败或文件类型暂不支持预览';
+                  spanDom.className = 'uploaded-list-item-error';
+                  parent?.insertBefore(spanDom, parent.firstChild);
+                }}
+              />
+              <span className='uploaded-list-item-name'>{item.fileName}</span>
+              <CopyButton text={item.url} className='uploaded-list-item-url' />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  ) : null;
+
   return (
-    <div className='uploaded-container'>
-      <div className='uploaded-title'>已上传文件</div>
-      {list}
-      <div className='uploaded-list'>{previewList}</div>
+    <div className='uploaded-wrapper'>
+      {waitCalculateList}
+      {uploadedList}
+      {previewList}
     </div>
   );
 };

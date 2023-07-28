@@ -42,12 +42,11 @@ const UploadFile: React.FC = () => {
   return (
     <div className='container'>
       <InputFile handleInputFileChange={handleInputFileChange} />
-      {uploadedFiles.length !== 0 && (
-        <UploadedFileList
-          waitUploadedFiles={waitUploadedFiles}
-          uploadFileList={uploadedFiles}
-        />
-      )}
+      <UploadedFileList
+        waitCalculateFiles={waitCalculateFiles}
+        waitUploadedFiles={waitUploadedFiles}
+        uploadFileList={uploadedFiles}
+      />
     </div>
   );
 };
