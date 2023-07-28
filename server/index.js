@@ -105,7 +105,7 @@ app.post('/upload', (req, res) => {
     keepExtensions: true, //保持原来的文件的扩展名
     uploadDir: `${__dirname}/uploads`, //设置上传文件存放的目录
     filename: (name, ext, part, form) => {
-      //windows上invaild name
+      //fix windows invalid name
       return `${new Date().getTime()}_${randomString(5)}`;
     },
   });

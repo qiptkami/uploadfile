@@ -43,7 +43,7 @@ const UploadedFileList: React.FC<IProps> = ({
               <div className='progress-container'>
                 <div
                   className='progress-bar'
-                  style={{ width: `${item.progress * 100}%` }}
+                  style={{ width: `${(item.progress * 100).toFixed(0)}%` }}
                 ></div>
               </div>
             </div>
