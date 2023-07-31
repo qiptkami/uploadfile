@@ -70,8 +70,8 @@ export default class UpLoadFileClass {
         });
         this.waitCalculateFiles.shift();
         this.waitUploadFiles.push(uploadFile);
-        this.updateWaitUploadFile([...this.waitUploadFiles]); // 上报
-        this.updateWaitCalculateFile([...this.waitCalculateFiles]); // 上报
+        this.updateWaitCalculateFile([...this.waitCalculateFiles]);
+        this.updateWaitUploadFile([...this.waitUploadFiles]);
         this.upload(uploadFile); // 上传文件
       }
     }

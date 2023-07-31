@@ -6,6 +6,9 @@ import {
 } from '../../interface/interface';
 import CopyButton from '../CopyButton';
 
+// @ts-ignore
+import loadingGIF from '../../loading.gif';
+
 import './index.less';
 
 interface IProps {
@@ -23,6 +26,7 @@ const UploadedFileList: React.FC<IProps> = ({
     <div className='list-wrapper'>
       <div className='dividing-line'></div>
       <div className='list-header'>正在计算文件hash...</div>
+      <img className='loading' src={loadingGIF} alt='' />
       <>
         {waitCalculateFiles.map((item: IWaitCalculateFile) => {
           return <div key={item.id}>{item.file.name}</div>;
