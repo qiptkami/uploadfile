@@ -8,8 +8,8 @@ const port = 8001;
 const hostIP = '127.0.0.1';
 
 app.use('*', function (req, res, next) {
-  res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
-  res.header(
+  res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
+  res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept'
   );
