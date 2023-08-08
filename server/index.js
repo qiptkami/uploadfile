@@ -206,6 +206,21 @@ app.post('/merge', (req, res) => {
   });
 });
 
+app.post('/cancel', (req, res) => {
+  let body = '';
+  req.on('data', (data) => {
+    body += data;
+  });
+  req.on('end', async () => {
+    const chunk = JSON.parse(body);
+    const chunksDir = __dirname + `/uploads/${chunk.hash}`;
+    fs.rmdir(chunksDir, { recursive: true }, (chunk) => {
+      console.log(chunksDir);
+    });
+    res.end(JSON.stringify({ ok: 1 }));
+  });
+});
+
 app.listen(port, hostIP, () => {
   console.log(`Server started on port ${port}`);
 });

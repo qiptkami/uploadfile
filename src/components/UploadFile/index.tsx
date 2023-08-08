@@ -48,6 +48,7 @@ const UploadFile: React.FC = () => {
         uploadFileList={uploadedFiles}
         pauseUploaded={uploadClass?.pauseUploaded}
         goOnUploaded={uploadClass?.goOnUploaded}
+        cancelUploaded={uploadClass?.cancelUploaded}
       />
     </div>
   );

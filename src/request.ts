@@ -112,3 +112,22 @@ export const verifyRequest = (data: { fileName: string; hash: string }) => {
     xhr.send(JSON.stringify(data));
   });
 };
+
+export const cancelRequest = (data: { hash: string }) => {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('post', `${baseUrl}/cancel`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        if ((xhr.status >= 200 && xhr.status <= 300) || xhr.status === 304) {
+          resolve({
+            data: xhr.responseText,
+          });
+        }
+      }
+    };
+    xhr.send(JSON.stringify(data));
+  });
+};

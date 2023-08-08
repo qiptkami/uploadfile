@@ -4,7 +4,12 @@ import {
   IUploadedFile,
   IChunkFile,
 } from './interface/interface';
-import { mergeRequest, uploadFileRequest, verifyRequest } from './request';
+import {
+  cancelRequest,
+  mergeRequest,
+  uploadFileRequest,
+  verifyRequest,
+} from './request';
 import { calculateFilesHash, createFileChunk } from './tools/fileUpload';
 
 interface IProps {
@@ -50,7 +55,7 @@ export default class UpLoadFileClass {
     this.calculateFileHash();
   };
 
-  public pauseUploaded = async (hash: string) => {
+  public pauseUploaded = (hash: string) => {
     const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
     if (!findFile) return;
     findFile.status = 2;
@@ -61,11 +66,28 @@ export default class UpLoadFileClass {
     this.updateWaitUploadFile([...this.waitUploadFiles]);
   };
 
-  public goOnUploaded = async (hash: string) => {
+  public goOnUploaded = (hash: string) => {
     const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
     if (!findFile) return;
     findFile.status = 1;
     this.upload(findFile);
+  };
+
+  public cancelUploaded = async (hash: string) => {
+    const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
+    if (!findFile) return;
+    //所有上传abort
+    findFile.requestList.forEach((xhr: XMLHttpRequest) => {
+      xhr.abort();
+    });
+    //删除后端所有切片
+    await cancelRequest({
+      hash: findFile.hash,
+    });
+    this.waitUploadFiles = this.waitUploadFiles.filter((item) => {
+      return item.id !== findFile.id;
+    });
+    this.updateWaitUploadFile([...this.waitUploadFiles]);
   };
 
   private calculateFileHash = async () => {

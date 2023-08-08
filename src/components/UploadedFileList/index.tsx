@@ -27,6 +27,7 @@ interface IProps {
   uploadFileList: IUploadedFile[];
   pauseUploaded?: (hash: string) => void;
   goOnUploaded?: (hash: string) => void;
+  cancelUploaded?: (hash: string) => void;
 }
 
 const UploadedFileList: React.FC<IProps> = ({
@@ -35,31 +36,40 @@ const UploadedFileList: React.FC<IProps> = ({
   uploadFileList = [],
   pauseUploaded,
   goOnUploaded,
+  cancelUploaded,
 }) => {
   const [list, setList] = useState<IWaitUploadedFile[]>([]);
 
   useEffect(() => {
     const arr: IWaitUploadedFile[] = [];
-    waitCalculateFiles.forEach((item) => {
-      arr.push({
-        id: item.id,
-        file: item.file,
-        status: 0,
-        chunkList: [],
-        hash: '',
-        progress: 0,
-        progressArr: [],
-        requestList: [],
+    if (waitCalculateFiles.length) {
+      waitCalculateFiles.forEach((item) => {
+        arr.push({
+          id: item.id,
+          file: item.file,
+          status: 0,
+          chunkList: [],
+          hash: '',
+          progress: 0,
+          progressArr: [],
+          requestList: [],
+        });
       });
-    });
-    waitUploadedFiles.forEach((item) => {
-      const findFile = arr.find((file) => item.id === file.id);
-      if (!findFile) return;
-      findFile.status = item.status;
-      findFile.file = item.file;
-      findFile.progress = item.progress;
-      findFile.hash = item.hash;
-    });
+    }
+    if (waitUploadedFiles.length) {
+      waitUploadedFiles.forEach((item) => {
+        arr.push({
+          id: item.id,
+          file: item.file,
+          status: item.status,
+          chunkList: [],
+          hash: item.hash,
+          progress: item.progress,
+          progressArr: [],
+          requestList: [],
+        });
+      });
+    }
     setList(arr);
   }, [waitCalculateFiles, waitUploadedFiles]);
 
@@ -112,7 +122,15 @@ const UploadedFileList: React.FC<IProps> = ({
                     }}
                   />
                 ) : null}
-                <img src={closeSvg} alt='' />
+                {item.status !== 0 && (
+                  <img
+                    src={closeSvg}
+                    alt=''
+                    onClick={() => {
+                      cancelUploaded?.(item.hash);
+                    }}
+                  />
+                )}
               </div>
             </div>
           );
