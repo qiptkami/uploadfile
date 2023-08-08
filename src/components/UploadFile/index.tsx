@@ -46,6 +46,8 @@ const UploadFile: React.FC = () => {
         waitCalculateFiles={waitCalculateFiles}
         waitUploadedFiles={waitUploadedFiles}
         uploadFileList={uploadedFiles}
+        pauseUploaded={uploadClass?.pauseUploaded}
+        goOnUploaded={uploadClass?.goOnUploaded}
       />
     </div>
   );

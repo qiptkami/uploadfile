@@ -50,6 +50,25 @@ export default class UpLoadFileClass {
     this.calculateFileHash();
   };
 
+  public pauseUploaded = async (hash: string) => {
+    const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
+    console.log('findFile: pauseUploaded', findFile);
+    if (!findFile) return;
+    findFile.status = 2;
+    findFile.requestList.forEach((xhr: XMLHttpRequest) => {
+      xhr.abort();
+    });
+    findFile.requestList = [];
+    this.updateWaitUploadFile([...this.waitUploadFiles]);
+  };
+  public goOnUploaded = async (hash: string) => {
+    const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
+    if (!findFile) return;
+    console.log('findFile: ', findFile);
+    findFile.status = 1;
+    this.upload(findFile);
+  };
+
   private calculateFileHash = async () => {
     while (this.waitCalculateFiles.length > 0) {
       const file = this.waitCalculateFiles[0].file;
@@ -63,6 +82,8 @@ export default class UpLoadFileClass {
           hash: hash,
           progress: 0,
           progressArr: Array(fileChunk.length).fill(0),
+          status: 1,
+          requestList: [],
         };
         uploadFile.chunkList.forEach((item: IChunkFile, index: number) => {
           item.hash = `${hash}_${index}`;
@@ -99,20 +120,23 @@ export default class UpLoadFileClass {
       });
     }
 
-    uploadFileRequest(uploadFile, this.concurrency, this.uploadedProgress).then(
-      async () => {
-        const response: any = await mergeRequest({
-          fileName: uploadFile.hash,
-          newFileName: `${uploadFile.hash}.${this.getExtendName(
-            uploadFile.file.name
-          )}`,
-          fileSize: uploadFile.file.size,
-          chunkSize: this.chunkSize,
-        });
-        const imgInfo = JSON.parse(response.data);
-        this.completeUpload(uploadFile, imgInfo.url);
-      }
-    );
+    uploadFileRequest(
+      uploadFile,
+      this.concurrency,
+      this.uploadedProgress,
+      uploadFile.requestList
+    ).then(async () => {
+      const response: any = await mergeRequest({
+        fileName: uploadFile.hash,
+        newFileName: `${uploadFile.hash}.${this.getExtendName(
+          uploadFile.file.name
+        )}`,
+        fileSize: uploadFile.file.size,
+        chunkSize: this.chunkSize,
+      });
+      const imgInfo = JSON.parse(response.data);
+      this.completeUpload(uploadFile, imgInfo.url);
+    });
   };
 
   private completeUpload = (uploadFile: IWaitUploadedFile, url: string) => {
@@ -138,7 +162,6 @@ export default class UpLoadFileClass {
     if (!findFile) return;
     findFile.progressArr[index] = progress;
     const uploadedSize = findFile.progressArr.reduce((perv, cur) => perv + cur);
-    console.log('uploadedSize: ', uploadedSize, findFile.file.size);
     file.progress = uploadedSize / findFile.file.size;
     this.updateWaitUploadFile([...this.waitUploadFiles]);
   };

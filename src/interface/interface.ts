@@ -17,6 +17,8 @@ export interface IWaitUploadedFile {
   hash: string;
   progress: number;
   progressArr: Array<number>;
+  status: number; //下载中为1 暂停为2
+  requestList: Array<XMLHttpRequest>; //暂停用
 }
 
 export interface IUploadedFile {

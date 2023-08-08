@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   IUploadedFile,
   IWaitCalculateFile,
@@ -7,7 +7,16 @@ import {
 import CopyButton from '../CopyButton';
 
 // @ts-ignore
-import loadingGIF from '../../loading.gif';
+import loadingGIF from '../../assets//gif/loading.gif';
+
+// @ts-ignore
+import closeSvg from '../../assets/svg/close.svg';
+
+// @ts-ignore
+import downloadSvg from '../../assets/svg/download.svg';
+
+// @ts-ignore
+import pauseSvg from '../../assets/svg/pause.svg';
 
 import './index.less';
 
@@ -15,13 +24,29 @@ interface IProps {
   waitCalculateFiles: IWaitCalculateFile[];
   waitUploadedFiles: IWaitUploadedFile[];
   uploadFileList: IUploadedFile[];
+  pauseUploaded?: (hash: string) => void;
+  goOnUploaded?: (hash: string) => void;
 }
 
 const UploadedFileList: React.FC<IProps> = ({
   waitCalculateFiles = [],
   waitUploadedFiles = [],
   uploadFileList = [],
+  pauseUploaded,
+  goOnUploaded,
 }) => {
+  useEffect(() => {
+    console.log(waitCalculateFiles);
+    const arr = [];
+    waitCalculateFiles.forEach((item) => {
+      arr.push({ name: item.file.name });
+    });
+    console.log('waitUploadedFiles:', waitUploadedFiles);
+    console.log(uploadFileList);
+  }, [waitCalculateFiles, waitUploadedFiles, uploadFileList]);
+
+  const [list, setList] = useState();
+
   const waitCalculateList = waitCalculateFiles.length ? (
     <div className='list-wrapper'>
       <div className='dividing-line'></div>
@@ -39,16 +64,48 @@ const UploadedFileList: React.FC<IProps> = ({
     <div className='list-wrapper'>
       <div className='dividing-line'></div>
       <div className='list-header'>正在上传...</div>
-      <div className='waited-list'>
+      <div className='uploaded-list'>
         {waitUploadedFiles.map((item: IWaitUploadedFile) => {
+          const progress = `${(item.progress * 100).toFixed(0)}%`;
           return (
-            <div key={item.id} className='waited-list-item'>
-              <span className='waited-list-item-name'>{item.file.name}</span>
-              <div className='progress-container'>
-                <div
-                  className='progress-bar'
-                  style={{ width: `${(item.progress * 100).toFixed(0)}%` }}
-                ></div>
+            <div className='uploaded-list-item'>
+              <div className='img-unknown'>
+                <span className='img-unknown-content'>?</span>
+              </div>
+              <div className='uploaded-list-item-info'>
+                <div className='uploaded-list-item-info-name'>
+                  {item.file.name}
+                </div>
+                <div className='uploaded-list-item-info-size'>
+                  {item.file.size} {'      '}
+                  {item.status === 1 ? '上传中' : '暂停中'}
+                </div>
+                <div className='progress-container'>
+                  <div
+                    className='progress-bar'
+                    style={{ width: progress }}
+                  ></div>
+                </div>
+              </div>
+              <div className='uploaded-list-item-options'>
+                {item.status === 1 ? (
+                  <img
+                    src={pauseSvg}
+                    alt=''
+                    onClick={() => {
+                      pauseUploaded?.(item.hash);
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={downloadSvg}
+                    alt=''
+                    onClick={() => {
+                      goOnUploaded?.(item.hash);
+                    }}
+                  />
+                )}
+                <img src={closeSvg} alt='' />
               </div>
             </div>
           );
@@ -84,8 +141,18 @@ const UploadedFileList: React.FC<IProps> = ({
                   parent?.insertBefore(spanDom, parent.firstChild);
                 }}
               />
-              <span className='uploaded-list-item-name'>{item.fileName}</span>
-              <CopyButton text={item.url} className='uploaded-list-item-url' />
+              <div className='uploaded-list-item-info'>
+                <div className='uploaded-list-item-info-name'>
+                  {item.fileName}
+                </div>
+                <div className='uploaded-list-item-info-size'>
+                  {/* {item} */}
+                  200kb {'     '} 上传成功
+                </div>
+              </div>
+              <div className='uploaded-list-item-options'>
+                <CopyButton text={item.url} />
+              </div>
             </div>
           );
         })}

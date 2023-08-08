@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import ClipboardJS from 'clipboard';
 
-const CopyButton: React.FC<{ text: string; className: string | undefined }> = ({
-  text,
-  className,
-}) => {
+// @ts-ignore
+import copySvg from '../../assets/svg/copy.svg';
+
+const CopyButton: React.FC<{
+  text: string;
+  className?: string | undefined;
+}> = ({ text, className }) => {
   const copyRef = useRef<any>();
   useEffect(() => {
     const button = copyRef.current;
@@ -28,14 +31,15 @@ const CopyButton: React.FC<{ text: string; className: string | undefined }> = ({
   }, [text]);
 
   return (
-    <button
+    <img
+      title='复制url'
       ref={copyRef}
       className={className}
       data-clipboard-text={text}
-      style={{ maxWidth: '98px' }}
-    >
-      Copy Url
-    </button>
+      style={{ width: '22px' }}
+      src={copySvg}
+      alt=''
+    />
   );
 };
 

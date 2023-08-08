@@ -1,6 +1,6 @@
 import { IChunkFile, IWaitUploadedFile } from './interface/interface';
 
-const baseUrl = 'http://127.0.0.1:8001';
+const baseUrl = 'http://127.0.0.1:8002';
 
 export const uploadFileRequest = (
   file: IWaitUploadedFile,
@@ -9,10 +9,11 @@ export const uploadFileRequest = (
     uploadFile: IWaitUploadedFile,
     chunkIndex: number,
     progress: number
-  ) => void
+  ) => void,
+  requestList: Array<XMLHttpRequest>
 ) => {
   return new Promise((resolve, reject) => {
-    const chunkList = file.chunkList;
+    const chunkList = [...file.chunkList];
     let len = chunkList.length;
     let counter = 0;
     const start = async () => {
@@ -30,6 +31,11 @@ export const uploadFileRequest = (
         const xhr = new XMLHttpRequest();
         // 分片上传完后的回调
         xhr.onload = () => {
+          // 将请求成功的 xhr 从列表中删除
+          if (requestList) {
+            const xhrIndex = requestList.findIndex((item) => item === xhr);
+            requestList.splice(xhrIndex, 1);
+          }
           // 上传完成
           if (counter === len - 1) {
             resolve('1');
@@ -51,6 +57,7 @@ export const uploadFileRequest = (
 
         xhr.open('post', `${baseUrl}/upload`, true);
         xhr.send(formData);
+        requestList?.push(xhr);
       }
     };
 
