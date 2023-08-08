@@ -19,6 +19,7 @@ import downloadSvg from '../../assets/svg/download.svg';
 import pauseSvg from '../../assets/svg/pause.svg';
 
 import './index.less';
+import { formatFileSize } from '../../tools/fileUpload';
 
 interface IProps {
   waitCalculateFiles: IWaitCalculateFile[];
@@ -35,40 +36,42 @@ const UploadedFileList: React.FC<IProps> = ({
   pauseUploaded,
   goOnUploaded,
 }) => {
+  const [list, setList] = useState<IWaitUploadedFile[]>([]);
+
   useEffect(() => {
-    console.log(waitCalculateFiles);
-    const arr = [];
+    const arr: IWaitUploadedFile[] = [];
     waitCalculateFiles.forEach((item) => {
-      arr.push({ name: item.file.name });
+      arr.push({
+        id: item.id,
+        file: item.file,
+        status: 0,
+        chunkList: [],
+        hash: '',
+        progress: 0,
+        progressArr: [],
+        requestList: [],
+      });
     });
-    console.log('waitUploadedFiles:', waitUploadedFiles);
-    console.log(uploadFileList);
-  }, [waitCalculateFiles, waitUploadedFiles, uploadFileList]);
+    waitUploadedFiles.forEach((item) => {
+      const findFile = arr.find((file) => item.id === file.id);
+      if (!findFile) return;
+      findFile.status = item.status;
+      findFile.file = item.file;
+      findFile.progress = item.progress;
+      findFile.hash = item.hash;
+    });
+    setList(arr);
+  }, [waitCalculateFiles, waitUploadedFiles]);
 
-  const [list, setList] = useState();
-
-  const waitCalculateList = waitCalculateFiles.length ? (
-    <div className='list-wrapper'>
-      <div className='dividing-line'></div>
-      <div className='list-header'>正在计算文件hash...</div>
-      <img className='loading' src={loadingGIF} alt='' />
-      <>
-        {waitCalculateFiles.map((item: IWaitCalculateFile) => {
-          return <div key={item.id}>{item.file.name}</div>;
-        })}
-      </>
-    </div>
-  ) : null;
-
-  const uploadedList = waitUploadedFiles.length ? (
+  const uploadedList = list.length ? (
     <div className='list-wrapper'>
       <div className='dividing-line'></div>
       <div className='list-header'>正在上传...</div>
       <div className='uploaded-list'>
-        {waitUploadedFiles.map((item: IWaitUploadedFile) => {
+        {list.map((item: IWaitUploadedFile) => {
           const progress = `${(item.progress * 100).toFixed(0)}%`;
           return (
-            <div className='uploaded-list-item'>
+            <div className='uploaded-list-item' key={item.id}>
               <div className='img-unknown'>
                 <span className='img-unknown-content'>?</span>
               </div>
@@ -77,8 +80,12 @@ const UploadedFileList: React.FC<IProps> = ({
                   {item.file.name}
                 </div>
                 <div className='uploaded-list-item-info-size'>
-                  {item.file.size} {'      '}
-                  {item.status === 1 ? '上传中' : '暂停中'}
+                  {formatFileSize(item.file.size)} {'      '}
+                  {item.status === 1
+                    ? '上传中'
+                    : item.status === 2
+                    ? '暂停中'
+                    : '正在计算文件hash'}
                 </div>
                 <div className='progress-container'>
                   <div
@@ -96,7 +103,7 @@ const UploadedFileList: React.FC<IProps> = ({
                       pauseUploaded?.(item.hash);
                     }}
                   />
-                ) : (
+                ) : item.status === 2 ? (
                   <img
                     src={downloadSvg}
                     alt=''
@@ -104,7 +111,7 @@ const UploadedFileList: React.FC<IProps> = ({
                       goOnUploaded?.(item.hash);
                     }}
                   />
-                )}
+                ) : null}
                 <img src={closeSvg} alt='' />
               </div>
             </div>
@@ -135,10 +142,14 @@ const UploadedFileList: React.FC<IProps> = ({
                   if (!imgDom) return;
                   const parent = imgDom.parentElement;
                   imgDom.remove();
+                  const divDom = document.createElement('div');
+                  divDom.title = '图片加载失败或文件类型暂不支持预览';
+                  divDom.className = 'img-unknown';
                   const spanDom = document.createElement('span');
-                  spanDom.textContent = '图片加载失败或文件类型暂不支持预览';
-                  spanDom.className = 'uploaded-list-item-error';
-                  parent?.insertBefore(spanDom, parent.firstChild);
+                  spanDom.className = 'img-unknown-content';
+                  spanDom.textContent = '?';
+                  divDom.appendChild(spanDom);
+                  parent?.insertBefore(divDom, parent.firstChild);
                 }}
               />
               <div className='uploaded-list-item-info'>
@@ -146,8 +157,7 @@ const UploadedFileList: React.FC<IProps> = ({
                   {item.fileName}
                 </div>
                 <div className='uploaded-list-item-info-size'>
-                  {/* {item} */}
-                  200kb {'     '} 上传成功
+                  {formatFileSize(item.size)} {'     '} 上传成功
                 </div>
               </div>
               <div className='uploaded-list-item-options'>
@@ -162,7 +172,6 @@ const UploadedFileList: React.FC<IProps> = ({
 
   return (
     <div className='uploaded-wrapper'>
-      {waitCalculateList}
       {uploadedList}
       {previewList}
     </div>

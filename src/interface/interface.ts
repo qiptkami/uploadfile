@@ -24,4 +24,5 @@ export interface IWaitUploadedFile {
 export interface IUploadedFile {
   fileName: string;
   url: string;
+  size: number; //字节
 }

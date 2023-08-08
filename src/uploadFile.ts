@@ -52,7 +52,6 @@ export default class UpLoadFileClass {
 
   public pauseUploaded = async (hash: string) => {
     const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
-    console.log('findFile: pauseUploaded', findFile);
     if (!findFile) return;
     findFile.status = 2;
     findFile.requestList.forEach((xhr: XMLHttpRequest) => {
@@ -61,10 +60,10 @@ export default class UpLoadFileClass {
     findFile.requestList = [];
     this.updateWaitUploadFile([...this.waitUploadFiles]);
   };
+
   public goOnUploaded = async (hash: string) => {
     const findFile = this.waitUploadFiles.find((item) => item.hash === hash);
     if (!findFile) return;
-    console.log('findFile: ', findFile);
     findFile.status = 1;
     this.upload(findFile);
   };
@@ -76,7 +75,9 @@ export default class UpLoadFileClass {
         const fileChunk = createFileChunk(file, this.chunkSize);
         let hash: string = (await calculateFilesHash(fileChunk)) as string;
         const uploadFile = {
-          id: `${file.name}_${new Date().getTime()}`,
+          id:
+            this.waitCalculateFiles[0].id ||
+            `${file.name}_${new Date().getTime()}`,
           file: file,
           chunkList: fileChunk,
           hash: hash,
@@ -111,7 +112,7 @@ export default class UpLoadFileClass {
     const data = JSON.parse(response.data);
     if (data.value) {
       uploadFile.progress = 1;
-      this.completeUpload(uploadFile, data.url);
+      this.completeUpload(uploadFile, data.url, uploadFile.file.size);
       return;
     } else {
       const existChunkList = data.existChunkList;
@@ -135,18 +136,26 @@ export default class UpLoadFileClass {
         chunkSize: this.chunkSize,
       });
       const imgInfo = JSON.parse(response.data);
-      this.completeUpload(uploadFile, imgInfo.url);
+      this.completeUpload(uploadFile, imgInfo.url, uploadFile.file.size);
     });
   };
 
-  private completeUpload = (uploadFile: IWaitUploadedFile, url: string) => {
+  private completeUpload = (
+    uploadFile: IWaitUploadedFile,
+    url: string,
+    size: number
+  ) => {
     this.waitUploadFiles = this.waitUploadFiles.filter((item) => {
       return item.id !== uploadFile.id;
     });
     const find = this.uploadedFiles.find((item) => url === item.url);
     if (find) return;
     this.updateWaitUploadFile([...this.waitUploadFiles]);
-    this.uploadedFiles.push({ fileName: uploadFile.file.name, url: url });
+    this.uploadedFiles.push({
+      fileName: uploadFile.file.name,
+      url: url,
+      size: size,
+    });
     this.updateUploadedFiles([...this.uploadedFiles]);
   };
 
