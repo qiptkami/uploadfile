@@ -5,7 +5,8 @@ const express = require('express');
 const app = express();
 
 const port = 8001;
-const hostIP = '127.0.0.1';
+const ipAddress = '124.70.53.215';
+const hostIP = 'localhost';
 
 app.use('*', function (req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
@@ -173,7 +174,7 @@ app.post('/api/verify', (req, res) => {
       res.end(
         JSON.stringify({
           value: 1,
-          url: `http://${hostIP}:${port}/${chunk.hash}.${extend}`,
+          url: `http://${ipAddress}/files/${chunk.hash}.${extend}`,
         })
       );
     } else {
@@ -200,7 +201,7 @@ app.post('/api/merge', (req, res) => {
     res.end(
       JSON.stringify({
         ok: 1,
-        url: `http://${hostIP}:${port}/${chunk.newFileName}`,
+        url: `http://${ipAddress}/files/${chunk.newFileName}`,
       })
     );
   });
