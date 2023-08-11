@@ -4,7 +4,7 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 
-const port = 8002;
+const port = 8001;
 const hostIP = '127.0.0.1';
 
 app.use('*', function (req, res, next) {
@@ -90,7 +90,7 @@ const randomString = (length) => {
   return result;
 };
 
-app.post('/upload', (req, res) => {
+app.post('/api/upload', (req, res) => {
   if (!fs.existsSync(`${__dirname}/uploads`)) {
     fs.mkdir(`${__dirname}/uploads`, { recursive: true }, (err) => {
       if (err) {
@@ -157,7 +157,7 @@ const getAllFile = (folderPath) => {
   });
 };
 
-app.post('/verify', (req, res) => {
+app.post('/api/verify', (req, res) => {
   //找files 下 是否存在该文件 如果存在 直接return 不存在 判断 uploads 下有多少个该文件的  切片
   let body = '';
   req.on('data', (data) => {
@@ -189,7 +189,7 @@ app.post('/verify', (req, res) => {
   });
 });
 
-app.post('/merge', (req, res) => {
+app.post('/api/merge', (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -206,7 +206,7 @@ app.post('/merge', (req, res) => {
   });
 });
 
-app.post('/cancel', (req, res) => {
+app.post('/api/cancel', (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
