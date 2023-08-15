@@ -1,8 +1,17 @@
 const formidable = require('formidable');
 const fs = require('fs');
 
+const password = require('./config');
 const express = require('express');
 const app = express();
+
+const {
+  mergeFileChunks,
+  randomString,
+  getFileSize,
+  getExtendName,
+  getAllFile,
+} = require('./tools');
 
 const port = 8002;
 const hostIP = '127.0.0.1';
@@ -19,76 +28,6 @@ app.use('*', function (req, res, next) {
 });
 
 app.use(express.static(`${__dirname}/files`));
-
-const compareFun = (value1, value2) => {
-  let v1 = parseInt(value1.split('_')[value1.split('_').length - 1]);
-  let v2 = parseInt(value2.split('_')[value2.split('_').length - 1]);
-  return v1 - v2;
-};
-const pipeStream = (item, writeStream) => {
-  return new Promise((resolve) => {
-    const readStream = fs.createReadStream(item);
-    readStream.on('end', () => {
-      fs.unlinkSync(item, (err) => console.log(err));
-      resolve();
-    });
-    readStream.pipe(writeStream);
-  });
-};
-const mergeFileChunks = async (data) => {
-  if (!fs.existsSync(`${__dirname}/files`)) {
-    fs.mkdir(`${__dirname}/files`, { recursive: true }, (err) => {
-      if (err) {
-        console.error('创建文件夹时出错:', err);
-      } else {
-        console.log('文件夹创建成功');
-      }
-    });
-  }
-  const chunksDir = __dirname + `/uploads/${data.fileName}`;
-  fs.readdir(chunksDir, async (err, files) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    const chunkFilesPath = files.map((item) => `${chunksDir}/${item}`);
-    chunkFilesPath.sort(compareFun);
-    Promise.all(
-      /**
-       * 异步的将每一个文件item写入创建的文件可写流里
-       */
-      chunkFilesPath.map((item, index) =>
-        pipeStream(
-          item,
-          fs.createWriteStream(`${__dirname}/files/${data.newFileName}`, {
-            flag: 'a+',
-            start: index * data.chunkSize,
-            end:
-              (index + 1) * data.chunkSize > data.fileSize
-                ? data.fileSize
-                : (index + 1) * data.chunkSize,
-          })
-        )
-      )
-    ).then(() => {
-      fs.rmdir(chunksDir, { recursive: true }, (err) => {
-        console.log(chunksDir);
-        console.log(err);
-      });
-    });
-  });
-};
-const randomString = (length) => {
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charactersLength);
-    result += characters.charAt(randomIndex);
-  }
-  return result;
-};
 
 app.post('/upload', (req, res) => {
   if (!fs.existsSync(`${__dirname}/uploads`)) {
@@ -142,21 +81,6 @@ app.post('/upload', (req, res) => {
   });
 });
 
-const getExtendName = (nameStr) => {
-  return nameStr.split('.')[nameStr.split('.').length - 1];
-};
-
-const getAllFile = (folderPath) => {
-  return new Promise((resolve, reject) => {
-    if (fs.existsSync(folderPath)) {
-      const fileNames = fs.readdirSync(folderPath);
-      resolve(fileNames);
-    } else {
-      resolve([]);
-    }
-  });
-};
-
 app.post('/verify', (req, res) => {
   //找files 下 是否存在该文件 如果存在 直接return 不存在 判断 uploads 下有多少个该文件的  切片
   let body = '';
@@ -173,11 +97,12 @@ app.post('/verify', (req, res) => {
       res.end(
         JSON.stringify({
           value: 1,
+          size: getFileSize(fs, filepath),
           url: `http://${hostIP}:${port}/${chunk.hash}.${extend}`,
         })
       );
     } else {
-      const existChunkList = await getAllFile(hashPath);
+      const existChunkList = await getAllFile(fs, hashPath);
       console.log('existChunkList: ', existChunkList);
       res.end(
         JSON.stringify({
@@ -196,10 +121,11 @@ app.post('/merge', (req, res) => {
   });
   req.on('end', async () => {
     const chunk = JSON.parse(body);
-    await mergeFileChunks(chunk);
+    await mergeFileChunks(fs, chunk);
     res.end(
       JSON.stringify({
         ok: 1,
+        size: getFileSize(fs, `${__dirname}/files/${chunk.newFileName}`),
         url: `http://${hostIP}:${port}/${chunk.newFileName}`,
       })
     );
@@ -218,6 +144,54 @@ app.post('/cancel', (req, res) => {
       console.log(chunksDir);
     });
     res.end(JSON.stringify({ ok: 1 }));
+  });
+});
+
+app.post('/all', (req, res) => {
+  let body = '';
+  req.on('data', (data) => {
+    body += data;
+  });
+  req.on('end', async () => {
+    const chunk = JSON.parse(body);
+    if (chunk.password === password) {
+      const chunksDir = __dirname + `/files`;
+      const files = await getAllFile(fs, chunksDir);
+      console.log('files: ', files);
+      const urlList = files.map((file) => {
+        return {
+          size: getFileSize(fs, `${chunksDir}/${file}`),
+          url: `http://${hostIP}:${port}/${file}`,
+        };
+      });
+      res.end(JSON.stringify({ value: 1, urlList }));
+    } else {
+      res.end(JSON.stringify({ value: 0 }));
+    }
+  });
+});
+
+app.post('/delete', (req, res) => {
+  let body = '';
+  req.on('data', (data) => {
+    body += data;
+  });
+  req.on('end', async () => {
+    const chunk = JSON.parse(body);
+    if (chunk.password === password) {
+      const chunksDir = __dirname + `/files`;
+      const files = await getAllFile(fs, chunksDir);
+      console.log('files: ', files);
+      const urlList = files.map((file) => {
+        return {
+          size: getFileSize(fs, `${chunksDir}/${file}`),
+          url: `http://${hostIP}:${port}/${file}`,
+        };
+      });
+      res.end(JSON.stringify({ value: 1, urlList }));
+    } else {
+      res.end(JSON.stringify({ value: 0 }));
+    }
   });
 });
 

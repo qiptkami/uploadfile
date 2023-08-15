@@ -5,6 +5,7 @@ import {
   IUploadedFile,
 } from '../../interface/interface';
 import UpLoadFileClass from '../../uploadFile';
+import AllFile from '../AllFile';
 import InputFile from '../InputFile';
 import UploadedFileList from '../UploadedFileList';
 
@@ -50,6 +51,7 @@ const UploadFile: React.FC = () => {
         goOnUploaded={uploadClass?.goOnUploaded}
         cancelUploaded={uploadClass?.cancelUploaded}
       />
+      <AllFile />
     </div>
   );
 };
