@@ -50,37 +50,6 @@ const mergeFileChunks = async (fs, data) => {
     console.log(chunksDir);
     console.log(err);
   });
-  // fs.readdir(chunksDir, async (err, files) => {
-  //   if (err) {
-  //     console.log(err);
-  //     return;
-  //   }
-  //   const chunkFilesPath = files.map((item) => `${chunksDir}/${item}`);
-  //   chunkFilesPath.sort(compareFun);
-  //   await Promise.all(
-  //     /**
-  //      * 异步的将每一个文件item写入创建的文件可写流里
-  //      */
-  //     chunkFilesPath.map((item, index) =>
-  //       pipeStream(
-  //         fs,
-  //         item,
-  //         fs.createWriteStream(`${__dirname}/files/${data.newFileName}`, {
-  //           flag: 'a+',
-  //           start: index * data.chunkSize,
-  //           end:
-  //             (index + 1) * data.chunkSize > data.fileSize
-  //               ? data.fileSize
-  //               : (index + 1) * data.chunkSize,
-  //         })
-  //       )
-  //     )
-  //   );
-  //   fs.rmdir(chunksDir, { recursive: true }, (err) => {
-  //     console.log(chunksDir);
-  //     console.log(err);
-  //   });
-  // });
 };
 const randomString = (length) => {
   const characters =

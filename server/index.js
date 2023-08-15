@@ -178,20 +178,15 @@ app.post('/delete', (req, res) => {
   });
   req.on('end', async () => {
     const chunk = JSON.parse(body);
-    if (chunk.password === password) {
-      const chunksDir = __dirname + `/files`;
-      const files = await getAllFile(fs, chunksDir);
-      console.log('files: ', files);
-      const urlList = files.map((file) => {
-        return {
-          size: getFileSize(fs, `${chunksDir}/${file}`),
-          url: `http://${hostIP}:${port}/${file}`,
-        };
-      });
-      res.end(JSON.stringify({ value: 1, urlList }));
-    } else {
-      res.end(JSON.stringify({ value: 0 }));
-    }
+    const url = chunk.url.split('/');
+    const fileName = url[url.length - 1];
+    const filePath = `${__dirname}/files/${fileName}`;
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+    res.end(JSON.stringify({ value: 1 }));
   });
 });
 

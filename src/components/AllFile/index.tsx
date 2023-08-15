@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { IUploadedFile } from '../../interface/interface';
-import { getAllFiles } from '../../request';
+import { getAllFilesRequest, deleteFileRequest } from '../../request';
 import CopyButton from '../CopyButton';
+
+// @ts-ignore
+import closeSvg from '../../assets/svg/close.svg';
 
 import './index.less';
 
@@ -10,6 +13,23 @@ const FileHistory: React.FC = () => {
   const [fileHistory, setFileHistory] = useState<IUploadedFile[]>([]);
   const [pass, setPass] = useState<boolean>(false);
   const [password, setPassword] = useState<string>('');
+
+  const deleteFile = (url: string) => {
+    deleteFileRequest({ url: url });
+  };
+
+  const getAll = (inputValue: string) => {
+    getAllFilesRequest({ password: inputValue }).then((res: any) => {
+      const data = JSON.parse(res.data);
+      if (data.value) {
+        setFileHistory(data.urlList);
+        setPass(true);
+      } else {
+        setPassword('');
+        alert('密码错误');
+      }
+    });
+  };
 
   const fileHistoryList = fileHistory.length ? (
     <div className='list-wrapper'>
@@ -43,6 +63,13 @@ const FileHistory: React.FC = () => {
               />
               <span className='file-history-item-size'>{item.size}</span>
               <div className='file-history-item-options'>
+                <img
+                  src={closeSvg}
+                  alt=''
+                  onClick={() => {
+                    deleteFile(item.url);
+                  }}
+                />
                 <CopyButton text={item.url} />
               </div>
             </div>
@@ -51,19 +78,6 @@ const FileHistory: React.FC = () => {
       </div>
     </div>
   ) : null;
-
-  const getAll = (inputValue: string) => {
-    getAllFiles({ password: inputValue }).then((res: any) => {
-      const data = JSON.parse(res.data);
-      if (data.value) {
-        setFileHistory(data.urlList);
-        setPass(true);
-      } else {
-        setPassword('');
-        alert('密码错误');
-      }
-    });
-  };
 
   return (
     <div className='uploaded-wrapper'>
