@@ -82,6 +82,7 @@ const FileHistory: React.FC = () => {
   return (
     <div className='uploaded-wrapper'>
       <button
+        className='uploaded-all-btn'
         onClick={() => {
           pass ? getAll(password) : setConfirm(true);
         }}
