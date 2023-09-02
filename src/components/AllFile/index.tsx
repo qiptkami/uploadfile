@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IUploadedFile } from '../../interface/interface';
 import { getAllFilesRequest, deleteFileRequest } from '../../request';
 import CopyButton from '../CopyButton';
@@ -13,6 +13,15 @@ const FileHistory: React.FC = () => {
   const [fileHistory, setFileHistory] = useState<IUploadedFile[]>([]);
   const [pass, setPass] = useState<boolean>(false);
   const [password, setPassword] = useState<string>('');
+
+  const [btnVisible, setBtnVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    const qikami = () => {
+      setBtnVisible(true);
+    };
+    window.qikami = qikami;
+  }, []);
 
   const deleteFile = (url: string) => {
     deleteFileRequest({ url: url });
@@ -81,14 +90,16 @@ const FileHistory: React.FC = () => {
 
   return (
     <div className='uploaded-wrapper'>
-      <button
-        className='uploaded-all-btn'
-        onClick={() => {
-          pass ? getAll(password) : setConfirm(true);
-        }}
-      >
-        所有文件
-      </button>
+      {btnVisible && (
+        <button
+          className='uploaded-all-btn'
+          onClick={() => {
+            pass ? getAll(password) : setConfirm(true);
+          }}
+        >
+          所有文件
+        </button>
+      )}
       {confirm && (
         <div className='confirm-wrapper'>
           <div className='confirm-text'>请输入密码</div>
