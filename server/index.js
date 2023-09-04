@@ -13,8 +13,8 @@ const {
   getAllFile,
 } = require('./tools');
 
-const port = 8002;
-const hostIP = '127.0.0.1';
+const port = 8001;
+const hostIP = '124.70.53.215';
 
 app.use('*', function (req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
