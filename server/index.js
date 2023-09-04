@@ -17,7 +17,8 @@ const port = 8001;
 const ipAddress = '124.70.53.215';
 const hostIP = 'localhost';
 const apiPrefix = 'api';
-const filesPrefix = 'files';
+
+const filesPrefix = `http://${ipAddress}/files`;
 
 app.use('*', function (req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
@@ -101,7 +102,7 @@ app.post(`/${apiPrefix}/verify`, (req, res) => {
         JSON.stringify({
           value: 1,
           size: getFileSize(fs, filepath),
-          url: `http://${ipAddress}:${port}/${filesPrefix}/${chunk.hash}.${extend}`,
+          url: `${filesPrefix}/${chunk.hash}.${extend}`,
         })
       );
     } else {
@@ -129,7 +130,7 @@ app.post(`/${apiPrefix}/merge`, (req, res) => {
       JSON.stringify({
         ok: 1,
         size: getFileSize(fs, `${__dirname}/files/${chunk.newFileName}`),
-        url: `http://${ipAddress}:${port}/${filesPrefix}/${chunk.newFileName}`,
+        url: `${filesPrefix}/${chunk.newFileName}`,
       })
     );
   });
@@ -164,7 +165,7 @@ app.post(`/${apiPrefix}/all`, (req, res) => {
       const urlList = files.map((file) => {
         return {
           size: getFileSize(fs, `${chunksDir}/${file}`),
-          url: `http://${ipAddress}:${port}/${filesPrefix}/${file}`,
+          url: `${filesPrefix}/${file}`,
         };
       });
       res.end(JSON.stringify({ value: 1, urlList }));
