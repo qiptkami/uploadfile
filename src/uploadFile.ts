@@ -134,7 +134,7 @@ export default class UpLoadFileClass {
     const data = JSON.parse(response.data);
     if (data.value) {
       uploadFile.progress = 1;
-      this.completeUpload(uploadFile, data.url, uploadFile.file.size);
+      this.completeUpload(uploadFile, data.url, data.size);
       return;
     } else {
       const existChunkList = data.existChunkList;
@@ -158,14 +158,14 @@ export default class UpLoadFileClass {
         chunkSize: this.chunkSize,
       });
       const imgInfo = JSON.parse(response.data);
-      this.completeUpload(uploadFile, imgInfo.url, uploadFile.file.size);
+      this.completeUpload(uploadFile, imgInfo.url, imgInfo.size);
     });
   };
 
   private completeUpload = (
     uploadFile: IWaitUploadedFile,
     url: string,
-    size: number
+    size: string
   ) => {
     this.waitUploadFiles = this.waitUploadFiles.filter((item) => {
       return item.id !== uploadFile.id;

@@ -7,9 +7,6 @@ import {
 import CopyButton from '../CopyButton';
 
 // @ts-ignore
-import loadingGIF from '../../assets//gif/loading.gif';
-
-// @ts-ignore
 import closeSvg from '../../assets/svg/close.svg';
 
 // @ts-ignore
@@ -18,8 +15,9 @@ import downloadSvg from '../../assets/svg/download.svg';
 // @ts-ignore
 import pauseSvg from '../../assets/svg/pause.svg';
 
-import './index.less';
 import { formatFileSize } from '../../tools/fileUpload';
+
+import './index.less';
 
 interface IProps {
   waitCalculateFiles: IWaitCalculateFile[];
@@ -175,7 +173,7 @@ const UploadedFileList: React.FC<IProps> = ({
                   {item.fileName}
                 </div>
                 <div className='uploaded-list-item-info-size'>
-                  {formatFileSize(item.size)} {'     '} 上传成功
+                  {item.size} {'     '} 上传成功
                 </div>
               </div>
               <div className='uploaded-list-item-options'>
