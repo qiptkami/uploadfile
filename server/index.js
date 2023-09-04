@@ -114,7 +114,7 @@ app.post('/verify', (req, res) => {
   });
 });
 
-app.post('/merge', (req, res) => {
+app.post('/api/merge', (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -132,7 +132,7 @@ app.post('/merge', (req, res) => {
   });
 });
 
-app.post('/cancel', (req, res) => {
+app.post('/api/cancel', (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
