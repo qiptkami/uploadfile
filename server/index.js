@@ -14,8 +14,9 @@ const {
 } = require('./tools');
 
 const port = 8001;
-const hostIP = 'localhost';
 const ipAddress = '124.70.53.215';
+const hostIP = 'localhost';
+const apiPrefix = '/api';
 
 app.use('*', function (req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
@@ -30,7 +31,7 @@ app.use('*', function (req, res, next) {
 
 app.use(express.static(`${__dirname}/files`));
 
-app.post('/upload', (req, res) => {
+app.post(`${apiPrefix}/upload`, (req, res) => {
   if (!fs.existsSync(`${__dirname}/uploads`)) {
     fs.mkdir(`${__dirname}/uploads`, { recursive: true }, (err) => {
       if (err) {
@@ -82,7 +83,7 @@ app.post('/upload', (req, res) => {
   });
 });
 
-app.post('/verify', (req, res) => {
+app.post(`${apiPrefix}/verify`, (req, res) => {
   //找files 下 是否存在该文件 如果存在 直接return 不存在 判断 uploads 下有多少个该文件的  切片
   let body = '';
   req.on('data', (data) => {
@@ -115,7 +116,7 @@ app.post('/verify', (req, res) => {
   });
 });
 
-app.post('/api/merge', (req, res) => {
+app.post(`${apiPrefix}/merge`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -133,7 +134,7 @@ app.post('/api/merge', (req, res) => {
   });
 });
 
-app.post('/api/cancel', (req, res) => {
+app.post(`${apiPrefix}/cancel`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -148,7 +149,7 @@ app.post('/api/cancel', (req, res) => {
   });
 });
 
-app.post('/all', (req, res) => {
+app.post(`${apiPrefix}/all`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -172,7 +173,7 @@ app.post('/all', (req, res) => {
   });
 });
 
-app.post('/delete', (req, res) => {
+app.post(`${apiPrefix}/delete`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
