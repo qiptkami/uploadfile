@@ -171,8 +171,8 @@ export default class UpLoadFileClass {
       return item.id !== uploadFile.id;
     });
     const find = this.uploadedFiles.find((item) => url === item.url);
-    if (find) return;
     this.updateWaitUploadFile([...this.waitUploadFiles]);
+    if (find) return;
     this.uploadedFiles.push({
       fileName: uploadFile.file.name,
       url: url,
