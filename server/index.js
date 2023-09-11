@@ -13,10 +13,15 @@ const {
   getAllFile,
 } = require('./tools');
 
-const port = 8002;
-const hostIP = '127.0.0.1';
+const port = 8001;
+const ipAddress = '127.0.0.1';
+const hostIP = 'localhost';
+const apiPrefix = 'api';
+
+const filesPrefix = `http://${ipAddress}:${port}`;
 
 app.use('*', function (req, res, next) {
+  console.log('req: ', req);
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -29,7 +34,7 @@ app.use('*', function (req, res, next) {
 
 app.use(express.static(`${__dirname}/files`));
 
-app.post('/upload', (req, res) => {
+app.post(`/${apiPrefix}/upload`, (req, res) => {
   if (!fs.existsSync(`${__dirname}/uploads`)) {
     fs.mkdir(`${__dirname}/uploads`, { recursive: true }, (err) => {
       if (err) {
@@ -81,7 +86,7 @@ app.post('/upload', (req, res) => {
   });
 });
 
-app.post('/verify', (req, res) => {
+app.post(`/${apiPrefix}/verify`, (req, res) => {
   //找files 下 是否存在该文件 如果存在 直接return 不存在 判断 uploads 下有多少个该文件的  切片
   let body = '';
   req.on('data', (data) => {
@@ -98,7 +103,7 @@ app.post('/verify', (req, res) => {
         JSON.stringify({
           value: 1,
           size: getFileSize(fs, filepath),
-          url: `http://${hostIP}:${port}/${chunk.hash}.${extend}`,
+          url: `${filesPrefix}/${chunk.hash}.${extend}`,
         })
       );
     } else {
@@ -114,7 +119,7 @@ app.post('/verify', (req, res) => {
   });
 });
 
-app.post('/api/merge', (req, res) => {
+app.post(`/${apiPrefix}/merge`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -126,13 +131,13 @@ app.post('/api/merge', (req, res) => {
       JSON.stringify({
         ok: 1,
         size: getFileSize(fs, `${__dirname}/files/${chunk.newFileName}`),
-        url: `http://${hostIP}:${port}/${chunk.newFileName}`,
+        url: `${filesPrefix}/${chunk.newFileName}`,
       })
     );
   });
 });
 
-app.post('/api/cancel', (req, res) => {
+app.post(`/${apiPrefix}/cancel`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -147,7 +152,7 @@ app.post('/api/cancel', (req, res) => {
   });
 });
 
-app.post('/all', (req, res) => {
+app.post(`/${apiPrefix}/all`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;
@@ -161,7 +166,7 @@ app.post('/all', (req, res) => {
       const urlList = files.map((file) => {
         return {
           size: getFileSize(fs, `${chunksDir}/${file}`),
-          url: `http://${hostIP}:${port}/${file}`,
+          url: `${filesPrefix}/${file}`,
         };
       });
       res.end(JSON.stringify({ value: 1, urlList }));
@@ -171,7 +176,7 @@ app.post('/all', (req, res) => {
   });
 });
 
-app.post('/delete', (req, res) => {
+app.post(`/${apiPrefix}/delete`, (req, res) => {
   let body = '';
   req.on('data', (data) => {
     body += data;

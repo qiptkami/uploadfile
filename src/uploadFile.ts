@@ -168,11 +168,12 @@ export default class UpLoadFileClass {
     size: string
   ) => {
     this.waitUploadFiles = this.waitUploadFiles.filter((item) => {
+      console.log('item: ', item, uploadFile);
       return item.id !== uploadFile.id;
     });
     const find = this.uploadedFiles.find((item) => url === item.url);
-    if (find) return;
     this.updateWaitUploadFile([...this.waitUploadFiles]);
+    if (find) return;
     this.uploadedFiles.push({
       fileName: uploadFile.file.name,
       url: url,
