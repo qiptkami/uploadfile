@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IUploadedFile } from '../../interface/interface';
 import { getAllFilesRequest, deleteFileRequest } from '../../request';
-import CopyButton from '../CopyButton';
 
 // @ts-ignore
 import closeSvg from '../../assets/svg/close.svg';
@@ -50,8 +49,9 @@ const FileHistory: React.FC = () => {
       <div className='file-wrapper'>
         {fileHistory.map((item: IUploadedFile) => {
           const fileType = getExtendName(item.url);
+          const titleInfo = `${fileType}   ${item.size}`;
           return (
-            <div key={item.url} className='file-card'>
+            <div key={item.url} className='file-card' title={titleInfo}>
               <img
                 id={item.url}
                 src={item.url}
@@ -65,26 +65,17 @@ const FileHistory: React.FC = () => {
                     item.url
                   ) as HTMLImageElement;
                   if (!imgDom) return;
-                  const pDom = imgDom.parentElement;
-                  pDom && pDom.classList.add('file-card-unknown');
                   imgDom.src = unknown;
-                  imgDom.title = '图片加载失败或文件类型暂不支持预览';
                 }}
               />
-              <div className='file-card-info'>
-                <span className='file-card-info-type'>{fileType}</span>
-                <span className='file-card-info-size'>{item.size}</span>
-                <div className='file-card-info-options'>
-                  <img
-                    src={closeSvg}
-                    alt=''
-                    onClick={() => {
-                      deleteFile(item.url);
-                    }}
-                  />
-                  <CopyButton className='' text={item.url} />
-                </div>
-              </div>
+              <img
+                className='file-card-close'
+                src={closeSvg}
+                alt=''
+                onClick={() => {
+                  deleteFile(item.url);
+                }}
+              />
             </div>
           );
         })}
@@ -93,7 +84,7 @@ const FileHistory: React.FC = () => {
   ) : null;
 
   return (
-    <div className='uploaded-wrapper'>
+    <div className='uploaded-all'>
       {btnVisible && (
         <button
           className='uploaded-all-btn'
