@@ -1,8 +1,8 @@
 import { IChunkFile, IWaitUploadedFile } from './interface/interface';
 
-const baseUrl = 'http://localhost:8001/api';
+const baseUrl = 'http://124.70.53.215:8001/api';
 
-export const uploadFileRequest = (
+export const uploadFileRequest f(
   file: IWaitUploadedFile,
   concurrency: number,
   uploadedProgress: (
