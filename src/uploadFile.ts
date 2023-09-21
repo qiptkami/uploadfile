@@ -10,7 +10,11 @@ import {
   uploadFileRequest,
   verifyRequest,
 } from './request';
-import { calculateFilesHash, createFileChunk } from './tools/fileUpload';
+import {
+  calculateFilesHash,
+  createFileChunk,
+  getExtendName,
+} from './tools/fileUpload';
 
 interface IProps {
   updateWaitCalculateFile: (files: Array<IWaitCalculateFile>) => void;
@@ -46,6 +50,10 @@ export default class UpLoadFileClass {
     const len = fileList.length;
     for (let i = 0; i < len; i++) {
       const file = fileList[i];
+      if (file.size === 0) {
+        alert('文件为空');
+        continue;
+      }
       this.waitCalculateFiles.push({
         id: `${file.name}_${new Date().getTime()}`,
         file: file,
@@ -121,10 +129,6 @@ export default class UpLoadFileClass {
     }
   };
 
-  private getExtendName = (nameStr: string): string => {
-    return nameStr.split('.')[nameStr.split('.').length - 1];
-  };
-
   private upload = async (uploadFile: IWaitUploadedFile) => {
     //根据hash => 服务端有没有该文件的切片，如果有，则filter掉
     const response: any = await verifyRequest({
@@ -151,7 +155,7 @@ export default class UpLoadFileClass {
     ).then(async () => {
       const response: any = await mergeRequest({
         fileName: uploadFile.hash,
-        newFileName: `${uploadFile.hash}.${this.getExtendName(
+        newFileName: `${uploadFile.hash}.${getExtendName(
           uploadFile.file.name
         )}`,
         fileSize: uploadFile.file.size,
