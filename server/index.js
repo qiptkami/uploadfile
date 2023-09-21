@@ -21,6 +21,7 @@ const apiPrefix = 'api';
 const filesPrefix = `http://${ipAddress}/files`;
 
 app.use('*', function (req, res, next) {
+  console.log('req: ', req);
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',

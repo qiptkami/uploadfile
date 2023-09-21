@@ -12,6 +12,7 @@ import UploadedFileList from '../UploadedFileList';
 import './index.less';
 
 const UploadFile: React.FC = () => {
+  const [key, setKey] = useState<number>(0);
   //如果只用一个数组，设置文件的状态来维护，如果文件多就不行，所以还是三个数组，完成就filter，最后的uploadedFiles不参与计算 只渲染
   const [waitCalculateFiles, setWaitCalculateFiles] = useState<
     IWaitCalculateFile[]
@@ -35,6 +36,7 @@ const UploadFile: React.FC = () => {
   }, []);
 
   const handleInputFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKey((prev) => prev + 1);
     const fileList = e.target.files;
     if (!fileList || !uploadClass) return;
     uploadClass.addNewFiles(fileList);
@@ -42,7 +44,7 @@ const UploadFile: React.FC = () => {
 
   return (
     <div className='container'>
-      <InputFile handleInputFileChange={handleInputFileChange} />
+      <InputFile key={key} handleInputFileChange={handleInputFileChange} />
       <UploadedFileList
         waitCalculateFiles={waitCalculateFiles}
         waitUploadedFiles={waitUploadedFiles}

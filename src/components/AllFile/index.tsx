@@ -5,7 +5,10 @@ import CopyButton from '../CopyButton';
 
 // @ts-ignore
 import closeSvg from '../../assets/svg/close.svg';
+// @ts-ignore
+import unknown from '../../assets/img/unknown.png';
 
+import { getExtendName } from '../../tools/fileUpload';
 import './index.less';
 
 const FileHistory: React.FC = () => {
@@ -25,6 +28,7 @@ const FileHistory: React.FC = () => {
 
   const deleteFile = (url: string) => {
     deleteFileRequest({ url: url });
+    getAll(password);
   };
 
   const getAll = (inputValue: string) => {
@@ -41,51 +45,51 @@ const FileHistory: React.FC = () => {
   };
 
   const fileHistoryList = fileHistory.length ? (
-    <div className='list-wrapper'>
+    <>
       <div className='dividing-line'></div>
-      <div className='file-history'>
+      <div className='file-wrapper'>
         {fileHistory.map((item: IUploadedFile) => {
+          const fileType = getExtendName(item.url);
           return (
-            <div key={item.url} className='file-history-item'>
+            <div key={item.url} className='file-card'>
               <img
                 id={item.url}
                 src={item.url}
                 alt=''
-                className='file-history-item-img'
+                className='file-card-img'
                 onClick={() => {
                   window.open(item.url, '_blank');
                 }}
                 onError={() => {
-                  const imgDom = document.getElementById(item.url);
+                  const imgDom = document.getElementById(
+                    item.url
+                  ) as HTMLImageElement;
                   if (!imgDom) return;
-                  const parent = imgDom.parentElement;
-                  imgDom.remove();
-                  const divDom = document.createElement('div');
-                  divDom.title = '图片加载失败或文件类型暂不支持预览';
-                  divDom.className = 'img-unknown';
-                  const spanDom = document.createElement('span');
-                  spanDom.className = 'img-unknown-content';
-                  spanDom.textContent = '?';
-                  divDom.appendChild(spanDom);
-                  parent?.insertBefore(divDom, parent.firstChild);
+                  const pDom = imgDom.parentElement;
+                  pDom && pDom.classList.add('file-card-unknown');
+                  imgDom.src = unknown;
+                  imgDom.title = '图片加载失败或文件类型暂不支持预览';
                 }}
               />
-              <span className='file-history-item-size'>{item.size}</span>
-              <div className='file-history-item-options'>
-                <img
-                  src={closeSvg}
-                  alt=''
-                  onClick={() => {
-                    deleteFile(item.url);
-                  }}
-                />
-                <CopyButton text={item.url} />
+              <div className='file-card-info'>
+                <span className='file-card-info-type'>{fileType}</span>
+                <span className='file-card-info-size'>{item.size}</span>
+                <div className='file-card-info-options'>
+                  <img
+                    src={closeSvg}
+                    alt=''
+                    onClick={() => {
+                      deleteFile(item.url);
+                    }}
+                  />
+                  <CopyButton className='' text={item.url} />
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-    </div>
+    </>
   ) : null;
 
   return (

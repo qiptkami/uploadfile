@@ -1,36 +1,68 @@
 .uploaded-wrapper {
   margin: 30px;
-  .list-wrapper {
-    .file-history {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      grid-auto-rows: 100px;
-      grid-gap: 20px; /* 列之间的间隔，也可以使用 grid-column-gap 和 grid-row-gap 分别设置行和列的间隔 */
-      &-item {
-        &-img {
-          height: 100%;
-          width: auto;
+  .file-wrapper {
+    display: flex;
+    margin: 30px;
+    .file-card {
+      position: relative;
+      height: 150px;
+      width: 180px;
+      background-color: #f5f5f5;
+      border-radius: 12px;
+      margin-left: -50px;
+      backdrop-filter: blur(60px);
+      transition: all 0.2s ease;
+      overflow: hidden;
+      &-img {
+        height: 80%;
+        object-fit: cover;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      &-info {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        &-type {
           display: inline-block;
-          cursor: pointer;
-        }
-        &-size {
-          display: inline-block;
-          padding: 0 10px;
           color: #727272;
           font-size: 12px;
           white-space: break-spaces;
-          align-self: flex-end;
+        }
+        &-size {
+          display: inline-block;
+          color: #727272;
+          font-size: 12px;
+          white-space: break-spaces;
         }
         &-options {
-          display: inline-block;
-          width: 22px;
           img {
-            width: 100%;
-            width: 100%;
+            display: inline-block;
+            width: 22px;
             cursor: pointer;
+          }
+          img:first-child {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+          }
+          img:last-child {
+            bottom: 5px;
+            right: 10px;
           }
         }
       }
+    }
+    .file-card:hover {
+      transform: translate(0, -10px);
+    }
+    .file-card:not(:first-child) {
+      box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+        0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    }
+    .file-card:hover ~ .file-card {
+      transform: translateX(50px);
     }
   }
   .uploaded-all-btn {

@@ -57,3 +57,7 @@ export const formatFileSize = (bytes: number) => {
     return `${tb} TB`;
   }
 };
+
+export const getExtendName = (nameStr: string): string => {
+  return nameStr.split('.')[nameStr.split('.').length - 1];
+};

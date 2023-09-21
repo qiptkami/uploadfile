@@ -1,6 +1,6 @@
 import { IChunkFile, IWaitUploadedFile } from './interface/interface';
 
-const baseUrl = 'http://124.70.53.215/api';
+const baseUrl = 'http://localhost:8001/api';
 
 export const uploadFileRequest = (
   file: IWaitUploadedFile,
@@ -98,6 +98,7 @@ export const verifyRequest = (data: { fileName: string; hash: string }) => {
   return new Promise((resolve) => {
     const xhr = new XMLHttpRequest();
     xhr.open('post', `${baseUrl}/verify`);
+    console.log('`${baseUrl}/verify`: ', `${baseUrl}/verify`);
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onreadystatechange = () => {
