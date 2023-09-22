@@ -1,16 +1,17 @@
 .uploaded-wrapper {
   margin: 30px;
+  width: calc(100% - 60px);
   .list-wrapper {
     .list-header {
       margin: 10px;
     }
     .uploaded-list {
-      // display: grid;
-      // grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      // grid-auto-rows: 250px;
-      // grid-gap: 20px; /* 列之间的间隔，也可以使用 grid-column-gap 和 grid-row-gap 分别设置行和列的间隔 */
+      height: 300px;
+      padding: 20px;
+      overflow: auto;
       &-item {
         display: flex;
+        justify-content: center;
         padding: 22px;
         height: 55px;
         border-radius: 5px;
@@ -79,8 +80,8 @@
 .dividing-line {
   background-color: #ddd;
   height: 2px;
-  width: calc(100vw - 100px);
-  margin: 20px;
+  width: calc(100vw - 60px);
+  margin: 0 auto;
 }
 
 .loading {
